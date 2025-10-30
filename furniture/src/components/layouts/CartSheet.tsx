@@ -1,3 +1,4 @@
+import { useCartStore } from "@/store/cartStore";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -9,7 +10,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Icons } from "@/components/icons";
-import { cartItems } from "@/data/carts";
+// import { cartItems } from "@/data/carts";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,31 +19,39 @@ import CartItem from "@/components/carts/CartItem";
 import { formatPrice } from "@/lib/utils";
 
 export default function CartSheet() {
-  const itemCount = 4;
-  const amountTotal = 190;
+  // const itemCount = 4;
+  // const amountTotal = 190;
+
+  const itemCount = useCartStore((state) => state.getTotalQuantity());
+  const amountTotal = useCartStore((state) => state.getTotalPrice());
+  const { carts } = useCartStore();
 
   return (
     <Sheet>
       <SheetTrigger asChild>
         <Button variant="outline" size="icon" className="relative">
-          <Badge
-            variant="destructive"
-            className="absolute -top-2 -right-2 size-6 justify-center rounded-full px-2.5"
-          >
-            {itemCount}
-          </Badge>
+          {itemCount > 0 && (
+            <Badge
+              variant="destructive"
+              className="absolute -top-2 -right-2 size-6 justify-center rounded-full px-2.5"
+            >
+              {itemCount}
+            </Badge>
+          )}
           <Icons.cart className="size-4" aria-hidden="true" />
         </Button>
       </SheetTrigger>
       <SheetContent className="w-full px-4 md:max-w-lg">
         <SheetHeader className="items-center">
-          <SheetTitle>Cart - {itemCount}</SheetTitle>
+          <SheetTitle>
+            {itemCount > 0 ? `Cart-${itemCount}` : "Empty Cart"}
+          </SheetTitle>
         </SheetHeader>
         <Separator />
-        {cartItems.length > 0 ? (
+        {carts.length > 0 ? (
           <>
             <ScrollArea className="h-[68vh] pb-8">
-              {cartItems.map((cart) => (
+              {carts.map((cart) => (
                 <CartItem cart={cart} />
               ))}
             </ScrollArea>

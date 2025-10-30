@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,33 +19,64 @@ import { Input } from "@/components/ui/input";
 import { Icons } from "@/components/icons";
 
 const quantitySchema = z.object({
-  quantity: z.string().min(0),
+  quantity: z
+    .string()
+    .min(1, "Must not be empty.")
+    .max(4, "Too Many! Is this real?")
+    .regex(/^\d+$/, "Must be a Number!"),
 });
 
-export default function Editable() {
+interface EditableProps {
+  onDelete: () => void;
+  quantity: number;
+  onUpdate: (quantity: number) => void;
+}
+
+export default function Editable({
+  onDelete,
+  quantity,
+  onUpdate,
+}: EditableProps) {
   const form = useForm<z.infer<typeof quantitySchema>>({
     resolver: zodResolver(quantitySchema),
     defaultValues: {
-      quantity: "1",
+      quantity: quantity.toString(),
     },
   });
 
-  function onSubmit(values: z.infer<typeof quantitySchema>) {
-    console.log(values);
-    //call api
-    toast.success("Product is successfully added.");
-  }
+  // function onSubmit(values: z.infer<typeof quantitySchema>) {
+  //   console.log(values);
+  //   //call api
+  //   toast.success("Product is successfully added.");
+  // }
+
+  const { setValue, watch } = form;
+  const currentQuantity = Number(watch("quantity"));
+
+  const handleDecrese = () => {
+    const newQuantity = Math.max(currentQuantity - 1, 0);
+    setValue("quantity", newQuantity.toString(), { shouldValidate: true });
+    onUpdate(newQuantity);
+  };
+
+  const handleIncrease = () => {
+    const newQuantity = Math.min(currentQuantity + 1, 9999);
+    setValue("quantity", newQuantity.toString(), { shouldValidate: true });
+    onUpdate(newQuantity);
+  };
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        // onSubmit={form.handleSubmit(onSubmit)}
         className="flex w-full justify-between"
       >
         <div className="flex items-center">
           <Button
             type="button"
             size="icon"
+            onClick={handleDecrese}
+            disabled={currentQuantity === 0}
             variant="outline"
             className="size-8 shrink-0 rounded-r-none"
           >
@@ -64,7 +95,7 @@ export default function Editable() {
                     inputMode="numeric"
                     min={1}
                     {...field}
-                    className="h-8 w-16 rounded-none border-x-0 text-center"
+                    className="h-8 w-16 [appearance:textfield] rounded-none border-x-0 text-center [&::webkit-inner-spin-button]:appearance-none [&webkit-outer-spin-button]:appearance-none"
                   />
                 </FormControl>
                 <FormMessage />
@@ -74,6 +105,8 @@ export default function Editable() {
           <Button
             type="button"
             size="icon"
+            onClick={handleIncrease}
+            disabled={currentQuantity > 9999}
             variant="outline"
             className="size-8 shrink-0 rounded-l-none"
           >
@@ -83,6 +116,7 @@ export default function Editable() {
         </div>
         <Button
           type="button"
+          onClick={onDelete}
           aria-label="Delete cart item"
           variant="outline"
           size="icon"

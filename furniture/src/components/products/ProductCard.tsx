@@ -14,22 +14,38 @@ import {
 } from "@/components/ui/card";
 import { formatPrice, cn } from "@/lib/utils";
 import type { HtmlHTMLAttributes } from "react";
+import { useCartStore } from "@/store/cartStore";
 
 interface ProductProps extends HtmlHTMLAttributes<HTMLDivElement> {
   product: Product;
 }
 
 function ProductCard({ product, className }: ProductProps) {
+  const imageUrl = import.meta.env.VITE_IMAGE_URL;
+
+  const { carts, addItems } = useCartStore();
+  const cartItem = carts.find((item) => item.id === product.id);
+  const handleAddToCart = () => {
+    addItems({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      image: product.images[0].path,
+    });
+  };
+
   return (
     <Card className={cn("size-full overflow-hidden rounded-lg p-0", className)}>
       <Link to={`/products/${product.id}`} aria-label={product.name}>
         <CardHeader className="border-b p-0">
           <AspectRatio ratio={1 / 1} className="bg-muted">
             <img
-              src={product.images[0]}
+              src={imageUrl + product.images[0].path}
               alt={product.name}
               className="size-full object-contain"
               loading="lazy"
+              decoding="async"
             />
           </AspectRatio>
         </CardHeader>
@@ -46,7 +62,7 @@ function ProductCard({ product, className }: ProductProps) {
         </CardContent>
       </Link>
       <CardFooter className="p-4 pt-1">
-        {product.status === "sold" ? (
+        {product.status === "INACTIVE" ? (
           <Button
             disabled={true}
             size="sm"
@@ -56,8 +72,14 @@ function ProductCard({ product, className }: ProductProps) {
             Sold Out
           </Button>
         ) : (
-          <Button size="sm" className="bg-own h-8 w-full rounded-sm font-bold">
-            <Icons.plus /> Add To Cart
+          <Button
+            size="sm"
+            onClick={handleAddToCart}
+            disabled={!!cartItem}
+            className="bg-own h-8 w-full rounded-sm font-bold"
+          >
+            {!cartItem && <Icons.plus />}
+            {!cartItem ? "Add To Cart" : "Item Added"}
           </Button>
         )}
       </CardFooter>

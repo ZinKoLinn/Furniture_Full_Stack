@@ -1,5 +1,5 @@
 import { Icons } from "@/components/icons";
-import { Link } from "react-router";
+import { Form, Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import type { User } from "@/types";
 
@@ -54,13 +54,15 @@ function AuthDropDown({ user }: UserProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem asChild>
-            <Link to="#">
-              <Icons.dashboard className="size-4" aria-hidden="true" />
-              Dashboard
-              <DropdownMenuShortcut>⇧⌘D</DropdownMenuShortcut>
-            </Link>
-          </DropdownMenuItem>
+          {user.status === "ADMIN" && (
+            <DropdownMenuItem asChild>
+              <Link to="#">
+                <Icons.dashboard className="size-4" aria-hidden="true" />
+                Dashboard
+                <DropdownMenuShortcut>⇧⌘D</DropdownMenuShortcut>
+              </Link>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem asChild>
             <Link to="#">
               <Icons.id className="size-4" aria-hidden="true" />
@@ -78,11 +80,13 @@ function AuthDropDown({ user }: UserProps) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link to="/login">
-            <Icons.exit className="size-4" aria-hidden="true" />
-            Log out
-            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-          </Link>
+          <Form method="post" action="/logout">
+            <button type="submit" className="flex w-full items-center">
+              <Icons.exit className="mr-2 size-4" aria-hidden="true" />
+              Log out
+              <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+            </button>
+          </Form>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -5,13 +5,17 @@ interface PostsProps {
   posts: Posts[];
 }
 
+const imageUrl = import.meta.env.VITE_IMAGE_URL;
+
 function BlogPostList({ posts }: PostsProps) {
   return (
     <div className="my-8 grid grid-cols-1 gap-16 px-4 md:grid-cols-2 md:px-0 lg:grid-cols-3">
       {posts.map((post) => (
         <Link to={`/blogs/${post.id}`} key={post.id}>
           <img
-            src={post.image}
+            src={imageUrl + post.image}
+            loading="lazy"
+            decoding="async"
             alt="Blog Posts"
             className="mb-4 w-full rounded-xl"
           />
@@ -21,8 +25,8 @@ function BlogPostList({ posts }: PostsProps) {
           </h3>
           <div className="text-sm">
             <span>
-              by <span className="font-[600]">{post.author} </span>on{" "}
-              <span className="font-[600]">{post.updated_at}</span>
+              by <span className="font-[600]">{post.author.fullName} </span>on{" "}
+              <span className="font-[600]">{post.updatedAt}</span>
             </span>
           </div>
         </Link>

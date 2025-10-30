@@ -14,17 +14,17 @@ export const siteConfig = {
       card: [
         {
           title: "Wooden",
-          href: "/products/wooden",
+          href: "/products?categories=2",
           description: "comfortabale with Wooden furniture.",
         },
         {
           title: "Bamboo",
-          href: "/products/bamboo",
+          href: "/products?categories=3",
           description: "Build your own Bamboo furniture.",
         },
         {
           title: "Metal",
-          href: "/products/metal",
+          href: "/products?categories=4",
           description: "Buy our latest metal furniture.",
         },
       ],
@@ -50,27 +50,27 @@ export const siteConfig = {
       items: [
         {
           title: "Seating",
-          href: "/types/seating",
+          href: "/products?types=2",
           external: true,
         },
         {
           title: "Lying",
-          href: "/types/lying",
+          href: "/products?types=3",
           external: true,
         },
         {
           title: "Entertainment",
-          href: "/types/entertainment",
+          href: "/products?types=4",
           external: true,
         },
         {
           title: "Tables",
-          href: "/types/tables",
+          href: "/products?types=5",
           external: true,
         },
         {
           title: "Storage",
-          href: "/types/storage",
+          href: "/products?types=6",
           external: true,
         },
       ],

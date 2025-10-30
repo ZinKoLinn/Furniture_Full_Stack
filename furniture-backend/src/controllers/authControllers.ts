@@ -289,12 +289,14 @@ export const confirmPassword = [
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
         maxAge: 15 * 60 * 1000,
+        path: "/",
       })
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
         maxAge: 30 * 24 * 60 * 60 * 1000,
+        path: "/",
       })
       .status(201)
       .json({
@@ -402,12 +404,14 @@ export const login = [
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
         maxAge: 15 * 60 * 1000,
+        path: "/",
       })
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
         maxAge: 30 * 24 * 60 * 60 * 1000,
+        path: "/",
       })
       .status(200)
       .json({ message: "Successfully Logged In.", userId: user!.id });
@@ -758,3 +762,26 @@ export const resetPassword = [
       .json({ message: "Successfully reset your password.", userId: user!.id });
   },
 ];
+
+interface CustomRequest extends Request {
+  userId?: number;
+}
+
+export const authCheck = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const userId = req.userId;
+  const user = await getUserById(userId!);
+  checkUserNotExist(user);
+
+  res
+    .status(200)
+    .json({
+      message: "You are authenticated.",
+      userId: user?.id,
+      userName: user?.fullName,
+      image: user?.image,
+    });
+};

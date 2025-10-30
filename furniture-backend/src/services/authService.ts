@@ -1,6 +1,26 @@
 import { PrismaClient } from "../generated/prisma";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient().$extends({
+  result: {
+    user: {
+      fullName: {
+        needs: { firstName: true, lastName: true },
+        compute(user) {
+          return `${user.firstName} ${user.lastName}`;
+        },
+      },
+      image: {
+        needs: { image: true },
+        compute(user) {
+          if (user.image) {
+            return "/optimize/" + user.image.split(".")[0] + ".webp";
+          }
+          return user.image;
+        },
+      },
+    },
+  },
+});
 
 export const getUserByPhone = (phone: string) => {
   return prisma.user.findUnique({

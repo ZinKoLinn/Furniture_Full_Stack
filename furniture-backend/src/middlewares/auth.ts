@@ -126,39 +126,40 @@ export const auth = (req: CustomRequest, res: Response, next: NextFunction) => {
     // error.status = 401;
     // error.code = errorCode.unauthenticated;
     // next(error);
+  } else {
+    let decoded;
+    try {
+      decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET!) as {
+        id: number;
+      };
+
+      if (isNaN(decoded.id)) {
+        return next(
+          createError(
+            "You are not an authenticated user.",
+            401,
+            errorCode.unauthenticated
+          )
+        );
+      }
+
+      req.userId = decoded.id;
+
+      next();
+    } catch (error: any) {
+      if (error.name === "TokenExpiredError") {
+        generateNewtokens();
+        // error.message = "Access Token has expired.";
+        // error.status = 401;
+        // error.code = errorCode.unauthenticated;
+      } else {
+        error.message = "Access Token Invalid";
+        error.status = 400;
+        error.code = errorCode.attack;
+        return next(createError("Access Token Invalid", 400, errorCode.attack));
+      }
+    }
   }
 
   //Verify access token
-  let decoded;
-  try {
-    decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET!) as {
-      id: number;
-    };
-
-    if (isNaN(decoded.id)) {
-      return next(
-        createError(
-          "You are not an authenticated user.",
-          401,
-          errorCode.unauthenticated
-        )
-      );
-    }
-
-    req.userId = decoded.id;
-
-    next();
-  } catch (error: any) {
-    if (error.name === "TokenExpiredError") {
-      generateNewtokens();
-      // error.message = "Access Token has expired.";
-      // error.status = 401;
-      // error.code = errorCode.unauthenticated;
-    } else {
-      error.message = "Access Token Invalid";
-      error.status = 400;
-      error.code = errorCode.attack;
-      return next(createError("Access Token Invalid", 400, errorCode.attack));
-    }
-  }
 };

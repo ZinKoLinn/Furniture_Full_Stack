@@ -1,12 +1,20 @@
-import { Link, useParams } from "react-router";
+import { Link, useLoaderData, useParams } from "react-router";
 import { posts } from "@/data/posts";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import RichTextRender from "@/components/blogs/RichTextRender";
+import { onePostQuery, postQuery } from "@/api/query";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import type { Posts, Tag } from "@/types";
+
+const imageUrl = import.meta.env.VITE_IMAGE_URL;
 
 function BlogDetail() {
-  const { postId } = useParams();
-  const post = posts.find((post) => post.id === postId);
+  // const { postId } = useParams();
+  // const post = posts.find((post) => post.id === postId);
+  const { postId } = useLoaderData();
+  const { data: postsData } = useSuspenseQuery(postQuery("?limit=6"));
+  const { data: postDetail } = useSuspenseQuery(onePostQuery(postId));
 
   return (
     <div className="container mx-auto px-4 lg:px-0">
@@ -18,25 +26,39 @@ function BlogDetail() {
               All Posts
             </Link>
           </Button>
-          {post ? (
+          {postDetail ? (
             <>
-              <h2 className="mb-3 text-3xl font-extrabold">{post.title}</h2>
+              <h2 className="mb-3 text-3xl font-extrabold">
+                {postDetail.post.title}
+              </h2>
               <div className="text-sm">
                 <span>
-                  by<span className="font-[600]"> {post.author} </span>on
-                  <span className="font-[600]"> {post.updated_at}</span>
+                  by
+                  <span className="font-[600]">
+                    {" "}
+                    {postDetail.post.author.fullName}{" "}
+                  </span>
+                  on
+                  <span className="font-[600]">
+                    {" "}
+                    {postDetail.post.updatedAt}
+                  </span>
                 </span>
               </div>
-              <h3 className="my-6 text-base font-[400]">{post.content}</h3>
+              <h3 className="my-6 text-base font-[400]">
+                {postDetail.post.content}
+              </h3>
               <img
-                src={post.image}
-                alt={post.title}
+                src={imageUrl + postDetail.post.image}
+                alt={postDetail.post.title}
+                loading="lazy"
+                decoding="async"
                 className="w-full rounded-xl"
               />
-              <RichTextRender content={post.body} className="my-8" />
+              <RichTextRender content={postDetail.post.body} className="my-8" />
               <div className="mb-12 space-x-2">
-                {post.tags.map((tag) => (
-                  <Button variant="secondary">{tag}</Button>
+                {postDetail.post.tags.map((tag: Tag) => (
+                  <Button variant="secondary">{tag.name}</Button>
                 ))}
               </div>
             </>
@@ -52,14 +74,16 @@ function BlogDetail() {
             <h3>Other Blog Posts</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1">
-            {posts.map((post) => (
+            {postsData.posts.map((post: Posts) => (
               <Link
                 to={`/blogs/${post.id}`}
                 className="mb-6 flex items-start gap-2"
               >
                 <img
-                  src={post.image}
+                  src={imageUrl + post.image}
                   alt="blog posts"
+                  loading="lazy"
+                  decoding="async"
                   className="w-1/4 rounded"
                 />
                 <div className="text-muted-foreground w-3/4 text-sm font-[500]">

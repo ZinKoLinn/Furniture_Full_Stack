@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 // import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,27 +19,68 @@ import {
 import { Input } from "@/components/ui/input";
 import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
+import { useCartStore } from "@/store/cartStore";
 
 const quantitySchema = z.object({
-  quantity: z.string().min(0),
+  quantity: z
+    .string()
+    .min(1, "Must not be empty.")
+    .max(4, "Too Many! Is this real?")
+    .regex(/^\d+$/, "Must be a Number."),
 });
 
 interface ShowBuyNowProps {
   canBuy: boolean;
+  onHandleCart: (quantity: number) => void;
+  idInCart: number;
 }
 
-export default function AddToCartForm({ canBuy }: ShowBuyNowProps) {
+export default function AddToCartForm({
+  canBuy,
+  onHandleCart,
+  idInCart,
+}: ShowBuyNowProps) {
+  const cartItem = useCartStore((state) =>
+    state.carts.find((item) => item.id === idInCart),
+  );
+
   const form = useForm<z.infer<typeof quantitySchema>>({
     resolver: zodResolver(quantitySchema),
     defaultValues: {
-      quantity: "1",
+      quantity: cartItem ? cartItem.quantity.toString() : "1",
     },
   });
+
+  const { setValue, watch } = form;
+  const currentQuantity = Number(watch("quantity"));
+
+  useEffect(() => {
+    if (cartItem) {
+      setValue("quantity", cartItem.quantity.toString(), {
+        shouldValidate: true,
+      });
+    }
+  }, [cartItem, setValue]);
+
+  const handleDecrese = () => {
+    const newQuantity = Math.max(currentQuantity - 1, 0);
+    setValue("quantity", newQuantity.toString(), { shouldValidate: true });
+  };
+
+  const handleIncrease = () => {
+    const newQuantity = Math.min(currentQuantity + 1, 9999);
+    setValue("quantity", newQuantity.toString(), { shouldValidate: true });
+  };
 
   function onSubmit(values: z.infer<typeof quantitySchema>) {
     console.log(values);
     //call api
-    toast.success("Product is successfully added.");
+    onHandleCart(Number(values.quantity));
+    toast.success(
+      cartItem
+        ? "Updated Cart successfully."
+        : "Product is successfully added.",
+    );
   }
 
   return (
@@ -53,6 +95,8 @@ export default function AddToCartForm({ canBuy }: ShowBuyNowProps) {
             size="icon"
             variant="outline"
             className="size-8 shrink-0 rounded-r-none"
+            onClick={handleDecrese}
+            disabled={currentQuantity <= 0}
           >
             <Icons.minus className="size-3" aria-hidden="true" />
             <span className="sr-only">Remove one item</span>
@@ -68,8 +112,9 @@ export default function AddToCartForm({ canBuy }: ShowBuyNowProps) {
                     type="number"
                     inputMode="numeric"
                     min={1}
+                    max={9999}
                     {...field}
-                    className="h-8 w-16 rounded-none border-x-0 text-center"
+                    className="h-8 w-16 [appearance:textfield] rounded-none border-x-0 text-center [&::webkit-inner-spin-button]:appearance-none [&webkit-outer-spin-button]:appearance-none"
                   />
                 </FormControl>
                 <FormMessage />
@@ -81,12 +126,14 @@ export default function AddToCartForm({ canBuy }: ShowBuyNowProps) {
             size="icon"
             variant="outline"
             className="size-8 shrink-0 rounded-l-none"
+            onClick={handleIncrease}
+            disabled={currentQuantity >= 9999}
           >
             <Icons.plus className="size-3" aria-hidden="true" />
             <span className="sr-only">Add one item</span>
           </Button>
         </div>
-        <div className="flex items-center space-x-2.5">
+        <div className="flex w-1/2 items-center space-x-2.5">
           <Button
             type="button"
             aria-label="Buy Now"
@@ -102,7 +149,7 @@ export default function AddToCartForm({ canBuy }: ShowBuyNowProps) {
             variant={canBuy ? "outline" : "default"}
             className="w-full font-semibold"
           >
-            Add to Cart
+            {cartItem ? "Update cart" : "Add to Cart"}
           </Button>
         </div>
       </form>
