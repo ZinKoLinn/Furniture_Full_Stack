@@ -12,8 +12,6 @@ import {
   createUser,
   updateUser,
   getUserById,
-  deleteCategory,
-  deleteTypeById,
 } from "../services/authService";
 import {
   checkOtpErrorisSameDate,
@@ -944,29 +942,3 @@ export const confirmChangePassword = [
       });
   },
 ];
-
-//To remove unnecessary Category
-export const deleteCat = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const id = req.body.id;
-
-  await deleteCategory(+id);
-
-  res.status(200).json({ message: "Successfully deleted Category." });
-};
-
-//To remove unnecessary type
-export const deleteType = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const id = req.body.id;
-
-  await deleteTypeById(+id);
-
-  res.status(200).json({ message: "Successfully deleted Type." });
-};

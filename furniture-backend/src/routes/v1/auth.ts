@@ -12,8 +12,6 @@ import {
   authCheck,
   changePassword,
   confirmChangePassword,
-  deleteCat,
-  deleteType,
 } from "../../controllers/authControllers";
 import { auth } from "../../middlewares/auth";
 
@@ -33,8 +31,5 @@ router.get("/auth-check", auth, authCheck);
 
 router.post("/change-password", changePassword);
 router.post("/confirm-change", confirmChangePassword);
-
-router.post("/deleteCat", deleteCat);
-router.post("/deleteType", deleteType);
 
 export default router;

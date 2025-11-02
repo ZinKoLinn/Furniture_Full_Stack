@@ -1,3 +1,4 @@
+import { disconnect } from "process";
 import { PrismaClient } from "../generated/prisma";
 
 const prisma = new PrismaClient().$extends({
@@ -60,18 +61,6 @@ export const updateUser = (id: number, userUpdateData: any) => {
 
 export const getUserById = (id: number) => {
   return prisma.user.findUnique({
-    where: { id },
-  });
-};
-
-export const deleteCategory = async (id: number) => {
-  return prisma.category.delete({
-    where: { id },
-  });
-};
-
-export const deleteTypeById = async (id: number) => {
-  return prisma.type.delete({
     where: { id },
   });
 };
