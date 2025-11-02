@@ -11,6 +11,7 @@ import {
   queryClient,
 } from "@/api/query";
 import { Button } from "@/components/ui/button";
+import { useFilterStore } from "@/store/filterStore";
 
 function Product() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -34,8 +35,14 @@ function Product() {
         .map((type) => type.toString())
     : [];
 
+  const stateCat = useFilterStore((state) => state.category).join(",");
+  const stateTyp = useFilterStore((state) => state.type).join(",");
+
   const cat = selectedCategory.length > 0 ? selectedCategory.join(",") : null;
   const type = selectedType.length > 0 ? selectedType.join(",") : null;
+
+  const cat1 = stateCat ? stateCat : cat;
+  const type1 = stateTyp ? stateTyp : type;
 
   const { data: cateType } = useSuspenseQuery(categoryTypeQuery());
 
@@ -51,7 +58,7 @@ function Product() {
     fetchNextPage,
     //fetchPreviousPage,
     refetch,
-  } = useInfiniteQuery(productInfiniteQuery(cat, type));
+  } = useInfiniteQuery(productInfiniteQuery(cat1, type1));
 
   const allProducts = data?.pages.flatMap((page) => page.products) ?? [];
 

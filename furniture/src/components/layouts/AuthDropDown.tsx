@@ -64,6 +64,13 @@ function AuthDropDown({ user }: UserProps) {
             </DropdownMenuItem>
           )}
           <DropdownMenuItem asChild>
+            <Link to="/change">
+              <Icons.info className="size-4" aria-hidden="true" />
+              Change Password
+              <DropdownMenuShortcut>⌘C</DropdownMenuShortcut>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
             <Link to="#">
               <Icons.id className="size-4" aria-hidden="true" />
               Billing

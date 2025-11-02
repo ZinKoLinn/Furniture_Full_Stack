@@ -19,26 +19,39 @@ import LoginPage from "@/pages/auth/Login";
 // import RegisterPage from "@/pages/auth/Register";
 import {
   blogInfiniteLoader,
+  changeLoader,
+  confirmChangeLoader,
   confirmLoader,
+  forgotNewPasswordLoader,
   homeLoader,
   loginLoader,
   otpLoader,
   postLoader,
   productInfiniteLoader,
   productLoader,
+  VerifyOTPLoader,
 } from "@/router/loader";
 import {
+  changeAction,
   confirmAction,
+  confirmChangeAction,
   favouriteAction,
+  forgotNewPasswordAction,
+  forgotPasswordAction,
   loginAction,
   logoutAction,
   otpAction,
   registerAction,
+  VerifyOTPAction,
 } from "@/router/action";
 import AuthRootLayout from "@/pages/auth/AuthRootLayout";
 import SignUpPage from "@/pages/auth/SignUp";
 import OtpPage from "@/pages/auth/Otp";
 import ConfirmPasswordPage from "@/pages/auth/ConfirmPassword";
+import ForgotPasswordPage from "@/pages/auth/ForgotPassword";
+import VerifyOTPPage from "@/pages/auth/VerifyOTP";
+import ChangePasswordPage from "@/pages/auth/ChangePassword";
+import ConfirmChangePage from "@/pages/auth/ConfirmChangePassword";
 
 // const SuspenseFallback = () => <div className="text-center">Loading...</div>;
 
@@ -143,5 +156,46 @@ export const router = createBrowserRouter([
     path: "/logout",
     action: logoutAction,
     loader: () => redirect("/"),
+  },
+  {
+    path: "/reset",
+    Component: AuthRootLayout,
+    children: [
+      {
+        index: true,
+        Component: ForgotPasswordPage,
+        action: forgotPasswordAction,
+      },
+      {
+        path: "verify",
+        Component: VerifyOTPPage,
+        loader: VerifyOTPLoader,
+        action: VerifyOTPAction,
+      },
+      {
+        path: "new-password",
+        Component: ConfirmPasswordPage,
+        loader: forgotNewPasswordLoader,
+        action: forgotNewPasswordAction,
+      },
+    ],
+  },
+  {
+    path: "/change",
+    Component: AuthRootLayout,
+    children: [
+      {
+        index: true,
+        Component: ChangePasswordPage,
+        loader: changeLoader,
+        action: changeAction,
+      },
+      {
+        path: "confirm",
+        Component: ConfirmChangePage,
+        loader: confirmChangeLoader,
+        action: confirmChangeAction,
+      },
+    ],
   },
 ]);

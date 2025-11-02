@@ -52,7 +52,7 @@ export default function CartSheet() {
           <>
             <ScrollArea className="h-[68vh] pb-8">
               {carts.map((cart) => (
-                <CartItem cart={cart} />
+                <CartItem cart={cart} key={cart.id} />
               ))}
             </ScrollArea>
             <div className="space-y-4">

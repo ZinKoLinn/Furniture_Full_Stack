@@ -29,7 +29,7 @@ const FormSchema = z.object({
   }),
 });
 
-export function InputOTPForm({
+export function VerifyOTPForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
@@ -67,7 +67,7 @@ export function InputOTPForm({
               <span className="sr-only">Otp Verify Form</span>
             </Link>
             <h1 className="mb-2 text-xl font-bold">
-              We've sent Otp to your phone.
+              To reset your password, We've sent Otp to your phone.
             </h1>
           </div>
 

@@ -1,4 +1,4 @@
-import { redirect, type ActionFunctionArgs } from "react-router";
+import { redirect, useLoaderData, type ActionFunctionArgs } from "react-router";
 import { AxiosError } from "axios";
 
 import api, { authApi } from "@/api";
@@ -143,6 +143,129 @@ export const favouriteAction = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       return error.response?.data || { error: "Favourite marking Failed!" };
+    } else throw error;
+  }
+};
+
+export const forgotPasswordAction = async ({ request }: ActionFunctionArgs) => {
+  const authStore = useAuthStore.getState();
+  const formData = await request.formData();
+  const credentials = Object.fromEntries(formData);
+
+  try {
+    const response = await authApi.post("forget-password", credentials);
+
+    if (response.status !== 200) {
+      return { error: response.data || "Seinding OTP failed!" };
+    }
+
+    authStore.setAuth(response.data.phone, response.data.token, Status.verify);
+
+    return redirect("/reset/verify");
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return error.response?.data || { error: "Sending Otp Failed!" };
+    } else throw error;
+  }
+};
+
+export const VerifyOTPAction = async ({ request }: ActionFunctionArgs) => {
+  const authStore = useAuthStore.getState();
+  const formData = await request.formData();
+  const credentials = {
+    phone: authStore.phone,
+    otp: formData.get("otp"),
+    token: authStore.token,
+  };
+  try {
+    const response = await authApi.post("verify", credentials);
+
+    if (response.status !== 200) {
+      return { error: response.data || "Verifying OTP failed!" };
+    }
+
+    authStore.setAuth(response.data.phone, response.data.token, Status.reset);
+
+    return redirect("/reset/new-password");
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return error.response?.data || { error: "Otp Verification Failed!" };
+    } else throw error;
+  }
+};
+
+export const forgotNewPasswordAction = async ({
+  request,
+}: ActionFunctionArgs) => {
+  const authStore = useAuthStore.getState();
+  const formData = await request.formData();
+  const credentials = {
+    phone: authStore.phone,
+    password: formData.get("password"),
+    token: authStore.token,
+  };
+  try {
+    const response = await authApi.post("reset-password", credentials);
+
+    if (response.status !== 200) {
+      return { error: response.data || "Reseting Password failed!" };
+    }
+
+    authStore.clearAuth();
+
+    return redirect("/");
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return error.response?.data || { error: "Reseting Password Failed!" };
+    } else throw error;
+  }
+};
+
+export const changeAction = async ({ request }: ActionFunctionArgs) => {
+  const authStore = useAuthStore.getState();
+  const formData = await request.formData();
+  const credentials = {
+    phone: authStore.phone,
+    password: formData.get("password"),
+  };
+
+  try {
+    const response = await authApi.post("change-password", credentials);
+
+    if (response.status !== 200) {
+      return { error: response.data || "Verifying Password failed!" };
+    }
+
+    authStore.setAuth(response.data.phone, "", Status.verify);
+
+    return redirect("/change/confirm");
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return error.response?.data || { error: "Verifying Password Failed!" };
+    } else throw error;
+  }
+};
+
+export const confirmChangeAction = async ({ request }: ActionFunctionArgs) => {
+  const authStore = useAuthStore.getState();
+  const formData = await request.formData();
+  const credentials = {
+    phone: authStore.phone,
+    password: formData.get("password"),
+  };
+  try {
+    const response = await authApi.post("confirm-change", credentials);
+
+    if (response.status !== 200) {
+      return { error: response.data || "Changing Password failed!" };
+    }
+
+    authStore.clearAuth();
+
+    return redirect("/");
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return error.response?.data || { error: "Changing Password Failed!" };
     } else throw error;
   }
 };

@@ -56,8 +56,8 @@ model Post {
   categoryId Int
   typeId Int
   author User @relation(fields: [authorId], references: [id])
-  category Category @relation(fields: [categoryId], references: [id])
-  type Type @relation(fields: [typeId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  type Type @relation(fields: [typeId], references: [id], onDelete: Cascade)
   tags PostTag[]
 }
 

@@ -31,7 +31,7 @@ const FormSchema = z.object({
     .regex(/^\d+$/, "Password must be numbers."),
 });
 
-export function ConfirmPasswordForm({
+export function ForgotNewPasswordForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
@@ -70,9 +70,9 @@ export function ConfirmPasswordForm({
           <div className="flex size-8 items-center justify-center rounded-md">
             <Icons.logo className="mr-2 size-6" />
           </div>
-          <span className="sr-only">Confirm Password</span>
+          <span className="sr-only">New Password</span>
         </Link>
-        <h1 className="text-xl font-bold">Please confirm your password.</h1>
+        <h1 className="text-xl font-bold">Please confirm your new password.</h1>
         <FieldDescription>
           Password must be 8 digits long and contain only numbers. They must
           match.
@@ -92,7 +92,7 @@ export function ConfirmPasswordForm({
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center">
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>New Password</FormLabel>
                     </div>
 
                     <FormControl>
@@ -114,7 +114,7 @@ export function ConfirmPasswordForm({
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center">
-                      <FormLabel>Confirm Your Password</FormLabel>
+                      <FormLabel>Confirm Your New Password</FormLabel>
                     </div>
 
                     <FormControl>
@@ -134,10 +134,10 @@ export function ConfirmPasswordForm({
                 <div className="flex gap-2">
                   <p className="text-sm text-red-500">{actionData?.message}</p>
                   <Link
-                    to="/register"
+                    to="/login"
                     className="mr-2 text-xs underline underline-offset-4"
                   >
-                    Go Back to Register
+                    Go Back to Login
                   </Link>
                 </div>
               )}
@@ -147,7 +147,7 @@ export function ConfirmPasswordForm({
               <div className="mt-6 grid gap-4">
                 <div className="flex flex-col gap-3">
                   <Button type="submit" className="w-full">
-                    {isSubmitting ? "Submitting..." : "Confirm"}
+                    {isSubmitting ? "Submitting..." : "Change"}
                   </Button>
                 </div>
               </div>

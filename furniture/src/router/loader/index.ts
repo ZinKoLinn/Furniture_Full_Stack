@@ -90,3 +90,43 @@ export const productLoader = async ({ params }: LoaderFunctionArgs) => {
   await queryClient.ensureQueryData(oneProductQuery(Number(params.productId)));
   return { productId: params.productId };
 };
+
+export const VerifyOTPLoader = async () => {
+  const authStore = useAuthStore.getState();
+  if (authStore.status !== Status.verify) {
+    return redirect("/reset");
+  }
+  return null;
+};
+
+export const forgotNewPasswordLoader = async () => {
+  const authStore = useAuthStore.getState();
+  if (authStore.status !== Status.reset) {
+    return redirect("/reset");
+  }
+  return null;
+};
+
+export const changeLoader = async () => {
+  try {
+    const response = await authApi.get("auth-check");
+    if (response.status === 200) {
+      const authStore = useAuthStore.getState();
+
+      authStore.setAuth(response.data.phone, "", Status.none);
+
+      return response.data;
+    }
+    return redirect("/login");
+  } catch (error) {
+    console.log("Loader Error: ", error);
+  }
+};
+
+export const confirmChangeLoader = async () => {
+  const authStore = useAuthStore.getState();
+  if (authStore.status !== Status.verify) {
+    return redirect("/change");
+  }
+  return null;
+};

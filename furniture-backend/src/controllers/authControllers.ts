@@ -12,6 +12,8 @@ import {
   createUser,
   updateUser,
   getUserById,
+  deleteCategory,
+  deleteTypeById,
 } from "../services/authService";
 import {
   checkOtpErrorisSameDate,
@@ -562,7 +564,7 @@ export const forgetPassword = [
     }
     res.status(200).json({
       message: `We are sending Otp to 09${result!.phone}`,
-      otp: result!.otp,
+      phone: result.phone,
       token: result!.rememberToken,
     });
   },
@@ -758,7 +760,7 @@ export const resetPassword = [
         sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
         maxAge: 30 * 24 * 60 * 60 * 1000,
       })
-      .status(201)
+      .status(200)
       .json({ message: "Successfully reset your password.", userId: user!.id });
   },
 ];
@@ -776,12 +778,195 @@ export const authCheck = async (
   const user = await getUserById(userId!);
   checkUserNotExist(user);
 
-  res
-    .status(200)
-    .json({
-      message: "You are authenticated.",
-      userId: user?.id,
-      userName: user?.fullName,
-      image: user?.image,
-    });
+  res.status(200).json({
+    message: "You are authenticated.",
+    userId: user?.id,
+    phone: user?.phone,
+    userName: user?.fullName,
+    image: user?.image,
+  });
+};
+
+export const changePassword = [
+  body("phone", "Invalid Phone Number.")
+    .trim()
+    .notEmpty()
+    .matches("^[0-9]+$")
+    .isLength({ min: 5, max: 12 }),
+  body("password", "Password must be 8 digits.")
+    .trim()
+    .notEmpty()
+    .matches("^[0-9]+$")
+    .isLength({ min: 8, max: 8 }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+
+    const { phone, password } = req.body;
+
+    const user = await getUserByPhone(phone);
+    checkUserNotExist(user);
+
+    if (user?.status === "FREEZE") {
+      return next(
+        createError(
+          "Your account is temporarily locked. Please contact us.",
+          401,
+          errorCode.accountFreeze
+        )
+      );
+    }
+
+    const isMatchPasword = await bcrypt.compare(password, user!.password);
+    if (!isMatchPasword) {
+      //------------Start counting error count-----
+      const lastRequest = new Date(user!.updatedAt).toLocaleDateString();
+      const isSameDate = lastRequest === Date().toLocaleLowerCase();
+      //If password is wrong the first time Today
+      if (!isSameDate) {
+        const userUpdateData = {
+          errorLoginCount: 1,
+        };
+        await updateUser(user!.id, userUpdateData);
+      } else {
+        //If password was wrong 2 times before this req
+        if (user!.errorLoginCount >= 2) {
+          const userUpdateData = {
+            status: "FREEZE",
+          };
+          await updateUser(user!.id, userUpdateData);
+        }
+        //If password was wrong 1 times before this req
+        else {
+          const userUpdateData = {
+            errorLoginCount: { increment: 1 },
+          };
+          await updateUser(user!.id, userUpdateData);
+        }
+      }
+      //------------Ending-------------------------
+      return next(createError("Wrong Password", 401, errorCode.invalid));
+    }
+
+    res
+      .status(200)
+      .json({ message: "Password is correct.", phone: user!.phone });
+  },
+];
+
+export const confirmChangePassword = [
+  body("phone", "Invalid Phone Number.")
+    .trim()
+    .notEmpty()
+    .matches("^[0-9]+$")
+    .isLength({ min: 5, max: 12 }),
+  body("password", "Password must be 8 digits.")
+    .trim()
+    .notEmpty()
+    .matches("^[0-9]+$")
+    .isLength({ min: 8, max: 8 }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+
+    const { phone, password } = req.body;
+
+    const user = await getUserByPhone(phone);
+    checkUserNotExist(user);
+
+    const isMatchPasword = await bcrypt.compare(password, user!.password);
+
+    if (isMatchPasword) {
+      return next(
+        createError(
+          "Password cannot be the same as previous password",
+          400,
+          errorCode.invalid
+        )
+      );
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
+    const randToken = "This is temporary.";
+
+    const userData = {
+      password: hashPassword,
+      randToken,
+    };
+    await updateUser(user!.id, userData);
+
+    const accessTokenPayLoad = { id: user!.id };
+    const refreshTokenPayLoad = { id: user!.id, phone: user!.phone };
+
+    const accessToken = jwt.sign(
+      accessTokenPayLoad,
+      process.env.ACCESS_TOKEN_SECRET!,
+      {
+        expiresIn: 15 * 60,
+      }
+    );
+    const refreshToken = jwt.sign(
+      refreshTokenPayLoad,
+      process.env.REFRESH_TOKEN_SECRET!,
+      {
+        expiresIn: "30d",
+      }
+    );
+
+    const userUpdateData = {
+      randToken: refreshToken,
+    };
+
+    await updateUser(user!.id, userUpdateData);
+
+    res
+      .cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        maxAge: 15 * 60 * 1000,
+      })
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      })
+      .status(200)
+      .json({
+        message: "Successfully change your password.",
+        userId: user!.id,
+      });
+  },
+];
+
+//To remove unnecessary Category
+export const deleteCat = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const id = req.body.id;
+
+  await deleteCategory(+id);
+
+  res.status(200).json({ message: "Successfully deleted Category." });
+};
+
+//To remove unnecessary type
+export const deleteType = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const id = req.body.id;
+
+  await deleteTypeById(+id);
+
+  res.status(200).json({ message: "Successfully deleted Type." });
 };

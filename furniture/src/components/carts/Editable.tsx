@@ -95,7 +95,7 @@ export default function Editable({
                     inputMode="numeric"
                     min={1}
                     {...field}
-                    className="h-8 w-16 [appearance:textfield] rounded-none border-x-0 text-center [&::webkit-inner-spin-button]:appearance-none [&webkit-outer-spin-button]:appearance-none"
+                    className="h-8 w-16 [appearance:textfield] rounded-none border-x-0 text-center [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
                 </FormControl>
                 <FormMessage />

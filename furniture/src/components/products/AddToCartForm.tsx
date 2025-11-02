@@ -73,7 +73,7 @@ export default function AddToCartForm({
   };
 
   function onSubmit(values: z.infer<typeof quantitySchema>) {
-    console.log(values);
+    //console.log(values);
     //call api
     onHandleCart(Number(values.quantity));
     toast.success(
@@ -96,7 +96,7 @@ export default function AddToCartForm({
             variant="outline"
             className="size-8 shrink-0 rounded-r-none"
             onClick={handleDecrese}
-            disabled={currentQuantity <= 0}
+            disabled={currentQuantity <= 1}
           >
             <Icons.minus className="size-3" aria-hidden="true" />
             <span className="sr-only">Remove one item</span>
@@ -114,7 +114,7 @@ export default function AddToCartForm({
                     min={1}
                     max={9999}
                     {...field}
-                    className="h-8 w-16 [appearance:textfield] rounded-none border-x-0 text-center [&::webkit-inner-spin-button]:appearance-none [&webkit-outer-spin-button]:appearance-none"
+                    className="h-8 w-16 [appearance:textfield] rounded-none border-x-0 text-center [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
                 </FormControl>
                 <FormMessage />
@@ -136,6 +136,7 @@ export default function AddToCartForm({
         <div className="flex w-1/2 items-center space-x-2.5">
           <Button
             type="button"
+            disabled={!canBuy}
             aria-label="Buy Now"
             size="sm"
             className={cn("bg-own w-full font-bold", !canBuy && "bg-slate-400")}
@@ -148,6 +149,7 @@ export default function AddToCartForm({
             size="sm"
             variant={canBuy ? "outline" : "default"}
             className="w-full font-semibold"
+            disabled={!canBuy}
           >
             {cartItem ? "Update cart" : "Add to Cart"}
           </Button>

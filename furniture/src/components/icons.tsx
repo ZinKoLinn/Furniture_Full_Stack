@@ -15,6 +15,7 @@ import {
   IdCardIcon,
   ExitIcon,
   TrashIcon,
+  InfoCircledIcon,
 } from "@radix-ui/react-icons";
 
 export type IconProps = React.HTMLAttributes<SVGElement>;
@@ -69,4 +70,5 @@ export const Icons = {
   id: IdCardIcon,
   exit: ExitIcon,
   trash: TrashIcon,
+  info: InfoCircledIcon,
 };

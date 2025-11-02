@@ -19,10 +19,9 @@ import { useCartStore } from "@/store/cartStore";
 interface ProductProps extends HtmlHTMLAttributes<HTMLDivElement> {
   product: Product;
 }
+const imageUrl = import.meta.env.VITE_IMAGE_URL;
 
 function ProductCard({ product, className }: ProductProps) {
-  const imageUrl = import.meta.env.VITE_IMAGE_URL;
-
   const { carts, addItems } = useCartStore();
   const cartItem = carts.find((item) => item.id === product.id);
   const handleAddToCart = () => {
@@ -30,8 +29,8 @@ function ProductCard({ product, className }: ProductProps) {
       id: product.id,
       name: product.name,
       price: product.price,
-      quantity: 1,
       image: product.images[0].path,
+      quantity: 1,
     });
   };
 

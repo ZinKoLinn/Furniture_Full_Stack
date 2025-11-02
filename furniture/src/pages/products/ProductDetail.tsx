@@ -46,7 +46,7 @@ function ProductDetail() {
       name: productDetail.product.name,
       price: productDetail.product.price,
       image: productDetail.product.images[0].path,
-      quantity: quantity,
+      quantity,
     });
   };
 
@@ -67,7 +67,7 @@ function ProductDetail() {
           <CarouselContent>
             {productDetail.product.images.map((image: Image) => (
               <CarouselItem key={image.id}>
-                <div className="">
+                <div className="p-1">
                   <img
                     src={imageUrl + image.path}
                     alt={productDetail.product.name}
@@ -103,7 +103,7 @@ function ProductDetail() {
             />
           </div>
           <AddToCartForm
-            canBuy={productDetail.product.status === "ACTIVE" ? true : false}
+            canBuy={productDetail.product.status === "ACTIVE"}
             onHandleCart={handleCart}
             idInCart={productDetail.product.id}
           />
@@ -126,7 +126,7 @@ function ProductDetail() {
       </section>
       <section className="space-y-6 overflow-hidden">
         <h2 className="line-clamp-1 text-2xl font-bold">
-          More Products form Furniture Shop
+          More Products from Furniture Shop
         </h2>
         <ScrollArea className="pb-8">
           <div className="flex gap-4">

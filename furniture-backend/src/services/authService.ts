@@ -63,3 +63,15 @@ export const getUserById = (id: number) => {
     where: { id },
   });
 };
+
+export const deleteCategory = async (id: number) => {
+  return prisma.category.delete({
+    where: { id },
+  });
+};
+
+export const deleteTypeById = async (id: number) => {
+  return prisma.type.delete({
+    where: { id },
+  });
+};

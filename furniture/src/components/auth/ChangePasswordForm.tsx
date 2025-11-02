@@ -1,4 +1,4 @@
-import { Link, useSubmit, useNavigation, useActionData } from "react-router";
+import { Link, useActionData, useNavigation, useSubmit } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -15,8 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { PasswordInput } from "@/components/auth/Password-Input";
-import { useState } from "react";
+import { PasswordInput } from "./Password-Input";
 
 const FormSchema = z.object({
   password: z
@@ -24,14 +23,9 @@ const FormSchema = z.object({
     .min(8, "Password must be 8 digits.")
     .max(8, "Password must be 8 digits.")
     .regex(/^\d+$/, "Password must be numbers."),
-  confirmpassword: z
-    .string()
-    .min(8, "Password must be 8 digits.")
-    .max(8, "Password must be 8 digits.")
-    .regex(/^\d+$/, "Password must be numbers."),
 });
 
-export function ConfirmPasswordForm({
+export function ChangePasswordForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
@@ -43,24 +37,17 @@ export function ConfirmPasswordForm({
     message?: string;
   };
 
-  const [clientError, setClientError] = useState<string | null>(null);
-
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       password: "",
-      confirmpassword: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof FormSchema>) {
     // console.log(values);
-    if (values.password !== values.confirmpassword) {
-      setClientError("Passwords do not match!");
-      return;
-    }
-    setClientError(null);
-    submit(values, { method: "POST", action: "/reset/new-password" });
+    //call api
+    submit(values, { method: "POST", action: "." });
   }
 
   return (
@@ -70,13 +57,15 @@ export function ConfirmPasswordForm({
           <div className="flex size-8 items-center justify-center rounded-md">
             <Icons.logo className="mr-2 size-6" />
           </div>
-          <span className="sr-only">Confirm Password</span>
+          <span className="sr-only">Furniture Shop</span>
         </Link>
-        <h1 className="text-xl font-bold">Please confirm your password.</h1>
-        <FieldDescription>
-          Password must be 8 digits long and contain only numbers. They must
-          match.
-        </FieldDescription>
+        <h1 className="text-xl font-bold">Change Password.</h1>
+        <div className="text-center text-sm">
+          Not Changing Your Password Anymore?
+          <Link to="/" className="ml-1 underline underline-offset-4">
+            Go Back To Home
+          </Link>
+        </div>
       </div>
       <div className="flex flex-col gap-6">
         <div className="grip gap-2">
@@ -92,29 +81,7 @@ export function ConfirmPasswordForm({
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center">
-                      <FormLabel>Password</FormLabel>
-                    </div>
-
-                    <FormControl>
-                      <PasswordInput
-                        required
-                        inputMode="numeric"
-                        //minLength={8}
-                        //maxLength={8}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="confirmpassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center">
-                      <FormLabel>Confirm Your Password</FormLabel>
+                      <FormLabel>Type your Old Password</FormLabel>
                     </div>
 
                     <FormControl>
@@ -131,23 +98,12 @@ export function ConfirmPasswordForm({
                 )}
               />
               {actionData && (
-                <div className="flex gap-2">
-                  <p className="text-sm text-red-500">{actionData?.message}</p>
-                  <Link
-                    to="/register"
-                    className="mr-2 text-xs underline underline-offset-4"
-                  >
-                    Go Back to Register
-                  </Link>
-                </div>
-              )}
-              {clientError && (
-                <p className="text-xs text-red-400">{clientError}</p>
+                <p className="text-sm text-red-500">{actionData?.message}</p>
               )}
               <div className="mt-6 grid gap-4">
                 <div className="flex flex-col gap-3">
                   <Button type="submit" className="w-full">
-                    {isSubmitting ? "Submitting..." : "Confirm"}
+                    {isSubmitting ? "Submitting..." : "Change"}
                   </Button>
                 </div>
               </div>
@@ -155,6 +111,13 @@ export function ConfirmPasswordForm({
           </Form>
         </div>
       </div>
+      <FieldDescription className="px-6 text-center">
+        By clicking continue, you agree to our
+        <Link to="#" className="mr-1 ml-1">
+          Terms of Service
+        </Link>
+        and <Link to="#">Privacy Policy</Link>.
+      </FieldDescription>
     </div>
   );
 }

@@ -33,7 +33,7 @@ function CartItem({ cart }: CartProps) {
         <div className="flex flex-col space-y-1">
           <span className="line-clamp-1 text-sm font-medium">{cart.name}</span>
           <span className="text-muted-foreground text-xs">
-            {formatPrice(cart.price)} x {formatPrice(cart.quantity)} ={" "}
+            {formatPrice(cart.price)} x {cart.quantity} ={" "}
             {formatPrice((cart.price * cart.quantity).toFixed(2))}
           </span>
         </div>
