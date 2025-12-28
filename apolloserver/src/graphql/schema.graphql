@@ -1,0 +1,54 @@
+type Post {
+  id: ID!
+  "The Post's title"
+  title: String!
+  content: String
+  "The Post's published status"
+  published: Boolean!
+  "The Post's author"
+  author: Author
+}
+
+type Author {
+  id: ID!
+  name: String
+  email: String!
+  "Author's posts"
+  posts: [Post]
+}
+
+type Query {
+  "get all posts"
+  posts: [Post!]!
+  "get post by Id"
+  post(id: ID!): Post
+}
+
+input CreatePostInput {
+  "Post's title"
+  title: String!
+  "Post's Content"
+  content: String
+  "Post's published status"
+  published: Boolean!
+  "author's ID"
+  authorId: ID!
+}
+
+type CreatePostResponse {
+  "the HTTP status code"
+  code: Int!
+  "the success status of the operation"
+  success: Boolean!
+  "the message from the operation"
+  message: String!
+  "the created post"
+  post: Post
+}
+
+type Mutation {
+  "create a new post"
+  creatPost(input: CreatePostInput): CreatePostResponse
+  "delete a post"
+  deletePost(id: ID!): Boolean!
+}

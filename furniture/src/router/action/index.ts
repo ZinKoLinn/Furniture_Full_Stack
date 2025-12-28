@@ -1,4 +1,4 @@
-import { redirect, useLoaderData, type ActionFunctionArgs } from "react-router";
+import { redirect, type ActionFunctionArgs } from "react-router";
 import { AxiosError } from "axios";
 
 import api, { authApi } from "@/api";
@@ -266,6 +266,32 @@ export const confirmChangeAction = async ({ request }: ActionFunctionArgs) => {
   } catch (error) {
     if (error instanceof AxiosError) {
       return error.response?.data || { error: "Changing Password Failed!" };
+    } else throw error;
+  }
+};
+
+export const createBlogAction = async ({ request }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+  const image = formData.get("image");
+  const data = {
+    title: formData.get("title"),
+    content: formData.get("content"),
+    body: formData.get("body"),
+    image,
+    category: formData.get("category"),
+    type: formData.get("type"),
+  };
+  try {
+    const response = await api.post("admins/posts", data);
+
+    if (response.status !== 201) {
+      return { error: response.data || "Creating a post failed!" };
+    }
+
+    return redirect("/dashboard/create-blog");
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return error.response?.data || { error: "Creating a post Failed!" };
     } else throw error;
   }
 };

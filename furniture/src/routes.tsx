@@ -22,6 +22,7 @@ import {
   changeLoader,
   confirmChangeLoader,
   confirmLoader,
+  favouriteProductLoader,
   forgotNewPasswordLoader,
   homeLoader,
   loginLoader,
@@ -35,6 +36,7 @@ import {
   changeAction,
   confirmAction,
   confirmChangeAction,
+  createBlogAction,
   favouriteAction,
   forgotNewPasswordAction,
   forgotPasswordAction,
@@ -52,6 +54,10 @@ import ForgotPasswordPage from "@/pages/auth/ForgotPassword";
 import VerifyOTPPage from "@/pages/auth/VerifyOTP";
 import ChangePasswordPage from "@/pages/auth/ChangePassword";
 import ConfirmChangePage from "@/pages/auth/ConfirmChangePassword";
+import ProfileLayoutPage from "@/pages/profile/ProfileLayout";
+import ProfilePage from "@/pages/profile/Profile";
+import DashboardPage from "@/pages/dashboard/Dashboard";
+import ProductSettingPage from "@/pages/dashboard/ProductSetting";
 
 // const SuspenseFallback = () => <div className="text-center">Loading...</div>;
 
@@ -74,11 +80,6 @@ export const router = createBrowserRouter([
 
           return { Component: mod.default };
         },
-        // element: (
-        //   <Suspense fallback={<SuspenseFallback />}>
-        //     <BlogRootLayout />
-        //   </Suspense>
-        // ),
         children: [
           {
             index: true,
@@ -86,11 +87,6 @@ export const router = createBrowserRouter([
               const mod = await import("@/pages/blogs/Blog");
               return { Component: mod.default, loader: blogInfiniteLoader };
             },
-            // element: (
-            //   <Suspense fallback={<SuspenseFallback />}>
-            //     <BlogPage />
-            //   </Suspense>
-            // ),
           },
           {
             path: ":postId",
@@ -99,12 +95,6 @@ export const router = createBrowserRouter([
 
               return { Component: mod.default, loader: postLoader };
             },
-
-            // element: (
-            //   <Suspense fallback={<SuspenseFallback />}>
-            //     <BlogDetailPage />
-            //   </Suspense>
-            // ),
           },
         ],
       },
@@ -122,6 +112,76 @@ export const router = createBrowserRouter([
             Component: ProductDetailPage,
             loader: productLoader,
             action: favouriteAction,
+          },
+        ],
+      },
+      {
+        path: "profile",
+        Component: ProfileLayoutPage,
+        children: [
+          { index: true, Component: ProfilePage },
+          {
+            path: "favourite-products",
+            lazy: async () => {
+              const mod = await import("@/pages/profile/FavouriteProducts");
+
+              return { Component: mod.default, loader: favouriteProductLoader };
+            },
+          },
+        ],
+      },
+      {
+        path: "dashboard",
+        lazy: async () => {
+          const mod = await import("@/pages/dashboard/DashboardLayout");
+
+          return { Component: mod.default };
+        },
+
+        children: [
+          {
+            index: true,
+            Component: DashboardPage,
+          },
+          {
+            path: "product-setting",
+            Component: ProductSettingPage,
+          },
+          {
+            path: "blog-setting",
+            lazy: async () => {
+              const mod = await import(
+                "@/pages/dashboard/BlogSetting/BlogSetting"
+              );
+              return { Component: mod.default };
+            },
+          },
+          {
+            path: "create-blog",
+            lazy: async () => {
+              const mod = await import(
+                "@/pages/dashboard/BlogSetting/CreateBlog"
+              );
+              return { Component: mod.default, action: createBlogAction };
+            },
+          },
+          {
+            path: "update-blog",
+            lazy: async () => {
+              const mod = await import(
+                "@/pages/dashboard/BlogSetting/UpdateBlog"
+              );
+              return { Component: mod.default };
+            },
+          },
+          {
+            path: "delete-blog",
+            lazy: async () => {
+              const mod = await import(
+                "@/pages/dashboard/BlogSetting/DeleteBlog"
+              );
+              return { Component: mod.default };
+            },
           },
         ],
       },

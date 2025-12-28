@@ -1,6 +1,7 @@
-import api, { authApi } from "@/api";
+import { authApi } from "@/api";
 import {
   categoryTypeQuery,
+  favouriteProductQuery,
   onePostQuery,
   oneProductQuery,
   postInfiniteQuery,
@@ -128,5 +129,10 @@ export const confirmChangeLoader = async () => {
   if (authStore.status !== Status.verify) {
     return redirect("/change");
   }
+  return null;
+};
+
+export const favouriteProductLoader = async () => {
+  await queryClient.ensureInfiniteQueryData(favouriteProductQuery());
   return null;
 };

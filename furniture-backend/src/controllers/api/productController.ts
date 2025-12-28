@@ -15,6 +15,7 @@ import {
 import { checkModelNotExist } from "../../utils/check";
 import {
   addProductToFavourite,
+  getProductListWithRelation,
   removeProductFromFavourite,
 } from "../../services/userService";
 import cacheQueue from "../../jobs/queues/cacheQueue";
@@ -199,6 +200,76 @@ export const toggleFavourite = [
       message: favourite
         ? "Successfully added Product to Favourite."
         : "Successfully added Product from Favourite.",
+    });
+  },
+];
+
+export const getFavouriteProducts = [
+  query("cursor", "Cursor must be Product Id.").isInt({ gt: 0 }).optional(),
+  query("limit", "Limit should not be  singed integer.")
+    .isInt({ gt: 3 })
+    .optional(),
+
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    //console.log({errors: errors[0].msg});
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+
+    const lastCursor = req.query.cursor ? Number(req.query.cursor) : undefined;
+    const limit = req.query.limit ? Number(req.query.limit) : 5;
+
+    const userId = req.userId;
+    const user = await getUserById(userId!);
+    checkUserNotExist(user);
+
+    const options = {
+      take: +limit + 1,
+      skip: lastCursor ? 1 : 0,
+      ...(lastCursor ? { cursor: { id: lastCursor } } : {}),
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        price: true,
+        discount: true,
+        status: true,
+        images: {
+          select: {
+            id: true,
+            path: true,
+          },
+          take: 1, //Only take the first photo
+        },
+      },
+      orderBy: {
+        id: "desc",
+      },
+    };
+
+    //const products = await getProductListWithRelation(user!.id);
+    //const posts = await getPostList(options);
+    const cachedKey = `products:${JSON.stringify(req.query)}`;
+    const products = await getOrSetCache(cachedKey, async () => {
+      return await getProductListWithRelation(user!.id, options);
+    });
+
+    const hasNextPage = products.length > +limit;
+
+    if (hasNextPage) {
+      products.pop();
+    }
+
+    const nextCursor =
+      products.length > 0 ? products[products.length - 1].id : null;
+
+    res.status(200).json({
+      message: "Get All Favourite Posts",
+      hasNextPage,
+      nextCursor,
+      prevCursor: lastCursor,
+      products,
     });
   },
 ];

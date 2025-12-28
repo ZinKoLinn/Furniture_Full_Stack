@@ -56,7 +56,7 @@ function AuthDropDown({ user }: UserProps) {
         <DropdownMenuGroup>
           {user.status === "ADMIN" && (
             <DropdownMenuItem asChild>
-              <Link to="#">
+              <Link to="/dashboard">
                 <Icons.dashboard className="size-4" aria-hidden="true" />
                 Dashboard
                 <DropdownMenuShortcut>⇧⌘D</DropdownMenuShortcut>

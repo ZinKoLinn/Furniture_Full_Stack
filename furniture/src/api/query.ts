@@ -116,3 +116,19 @@ export const oneProductQuery = (id: number) => ({
   queryKey: ["products", "details", id],
   queryFn: () => fetchOneProduct(id),
 });
+
+const fetchFavouriteProducts = async ({ pageParam = null }) => {
+  let query = pageParam ? `?limit=9&cursor=${pageParam}` : "?limit=9";
+  const response = await api.get(`users/favourite-products${query}`);
+  return response.data;
+};
+
+export const favouriteProductQuery = () => ({
+  queryKey: ["favourite", "products"],
+  queryFn: ({ pageParam }: { pageParam?: number | null }) =>
+    fetchFavouriteProducts({ pageParam }),
+  initialPageParam: null,
+  getNextPageParam: (lastPage, pages) => lastPage.nextCursor ?? undefined,
+  // getPreviousPageParam : (firstPage, pages) => firstPage.prevCursor ?? undefined,
+  // maxPages : 6,
+});

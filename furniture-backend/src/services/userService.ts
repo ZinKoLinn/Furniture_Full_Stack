@@ -1,6 +1,4 @@
-import { PrismaClient } from "../generated/prisma";
-
-const prisma = new PrismaClient();
+import { prisma } from "./prismaClient";
 
 export const addProductToFavourite = async (
   userId: number,
@@ -35,5 +33,21 @@ export const removeProductFromFavourite = async (
         },
       },
     },
+  });
+};
+
+export const getProductListWithRelation = async (
+  userID: number,
+  options: any
+) => {
+  return prisma.product.findMany({
+    where: {
+      users: {
+        some: {
+          id: userID,
+        },
+      },
+    },
+    ...options,
   });
 };

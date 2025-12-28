@@ -17,6 +17,7 @@ import {
 } from "../../../controllers/api/postController";
 import {
   getCategoryType,
+  getFavouriteProducts,
   getProduct,
   getProductsByPagination,
   toggleFavourite,
@@ -59,5 +60,7 @@ router.get("/products", auth, getProductsByPagination); // Cursor Pagination
 
 router.get("/filter-type", auth, getCategoryType);
 router.patch("/products/toggle-favourite", auth, toggleFavourite);
+
+router.get("/favourite-products", auth, getFavouriteProducts); //favourite products
 
 export default router;

@@ -1,0 +1,17 @@
+test/
+fullstack.code-workspace
+node_modules/
+dist/
+.idea/
+generated/prisma/
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+/generated/prisma
